@@ -7,6 +7,9 @@ int inputPinL = 4;
 int Sensor_R;
 int Sensor_M;
 int Sensor_L;
+int prev_Sensor_R = 0;
+int prev_Sensor_M = 1;
+int prev_Sensor_L = 0;
 // variable for reading the pin status
 
 
@@ -52,22 +55,7 @@ void robotForward()
   analogWrite(enB, 125);// Speedcontrol
   
 }
-void robotCrawl()
 
-{
-  // The robot moves foward slowly until a black line is spotted
-
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  analogWrite(enA, 125); // Speedcontrol
-
-  // Turn on motor B
-
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-  analogWrite(enB, 125);// Speedcontrol
-
-}
 void robotLeft(){  
   // Turn off motor B
    digitalWrite(in3, LOW);
@@ -79,11 +67,11 @@ void robotLeft(){
 
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
-  analogWrite(enA, 150); // Speedcontrol
+  analogWrite(enA, 125); // Speedcontrol
 
   
 
- // Speedcontrol
+ delay(10);
 
 }
 
@@ -100,7 +88,8 @@ void robotRight(){
 
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
-  analogWrite(enB, 125);// Speedcontrol
+  analogWrite(enB, 150);// Speedcontrol
+  delay(10);
 
 }
 
@@ -120,15 +109,29 @@ void robotStop(){
 
 }
 
-
-void loop()
-
-{
-
+void read_data(){
 Sensor_R = digitalRead(inputPinR);
 Sensor_M = digitalRead(inputPinM);
 Sensor_L = digitalRead(inputPinL);
+if (Sensor_R == 0 && Sensor_L == 0 && Sensor_M == 0)
+{
 
+Sensor_R = prev_Sensor_R;
+Sensor_M = prev_Sensor_M;
+Sensor_L = prev_Sensor_L; 
+}
+else{
+prev_Sensor_R = Sensor_R;
+prev_Sensor_M = Sensor_M;
+prev_Sensor_L = Sensor_L; 
+}
+}
+
+
+
+void loop()
+{
+  read_data();
 Serial.print(Sensor_R);
 Serial.print(" ");
 Serial.print(Sensor_M);
@@ -136,10 +139,10 @@ Serial.print(" ");
 Serial.println(Sensor_L);
 
 
- if ((Sensor_R == 0 && Sensor_L == 0 && Sensor_M == 1)||(Sensor_R == 0 && Sensor_L == 0 && Sensor_M == 0)){
+ if (Sensor_R == 0 && Sensor_L == 0 && Sensor_M == 1){
   robotForward();
  } 
- 
+
  if (Sensor_R == 1 && Sensor_L == 1 && Sensor_M == 1){
   robotStop();
   } 
@@ -148,7 +151,6 @@ Serial.println(Sensor_L);
   } 
  if ((Sensor_R == 0&& Sensor_M == 1 && Sensor_L == 1)||(Sensor_R == 0&& Sensor_M == 0 && Sensor_L == 1) ){
   robotLeft();
-  } 
-  
-delay(10);
+  }
+//delay(10);
 }
